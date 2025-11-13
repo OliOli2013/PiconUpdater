@@ -1,0 +1,35 @@
+msgid "Picon Updater"
+msgstr "Picon Updater"
+
+msgid "Download and install picon sets"
+msgstr "Download and install picon sets"
+
+msgid "by: Paweł Pawełek | msisystem@t.pl | Facebook: Enigma 2, Oprogramowanie i dodatki"
+msgstr "by: Paweł Pawełek | msisystem@t.pl | Facebook: Enigma 2, Software and Add-ons"
+
+msgid "Exit"
+msgstr "Exit"
+
+msgid "Download"
+msgstr "Download"
+
+msgid "Language"
+msgstr "Language"
+
+msgid "Language changed to: "
+msgstr "Language changed to: "
+
+msgid "Plugin will restart"
+msgstr "Plugin will restart"
+
+msgid "Downloading picon..."
+msgstr "Downloading picon..."
+
+msgid "Download failed: "
+msgstr "Download failed: "
+
+msgid "Picon installed successfully!"
+msgstr "Picon installed successfully!"
+
+msgid "Please select a picon first!"
+msgstr "Please select a picon first!"
