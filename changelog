@@ -1,4 +1,9 @@
+Wersja 1.1.0 (2025-11-13):
+- Dodano wybór lokalizacji instalacji (Flash / HDD / USB / SD) pod żółtym przyciskiem.
+- Mechanizm tworzenia symlinków dla zewnętrznych nośników.
+- Poprawa nazwy autora.
+
 Wersja 1.0.0 (2025-11-13):
-- Pierwsze wydanie wtyczki
-- Dodano obsługę pobierania picon
-- Dodano podgląd picon
+- Pierwsze wydanie wtyczki.
+- Obsługa pobierania picon IPK i TAR.XZ.
+- Podgląd picon.
