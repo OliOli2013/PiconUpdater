@@ -3,8 +3,7 @@ Wtyczka (plugin) dla tunerów Enigma2 (Python 3) służąca do łatwego pobieran
 
 Autor: **Paweł Pawełek** | msisystem@t.pl | Facebook: Enigma 2, Oprogramowanie i dodatki
 
-![Zrzut ekranu wtyczki Picon Updater](https://raw.githubusercontent.com/OliOli2013/PiconUpdater/main/screenshot.png)
-
+![Zrzut ekranu wtyczki Picon Updater](./screenshot.png)
 ## 🚀 Główne Funkcje
 
 * **Prosta instalacja:** Pobieranie i instalacja picon dla satelitów (np. Hotbird 13°E, Astra 19.2°E) oraz IPTV.
