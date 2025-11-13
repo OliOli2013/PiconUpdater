@@ -79,7 +79,21 @@ class PiconUpdater(Screen):
     def __init__(self, session):
         Screen.__init__(self, session)
         self.session = session
-        self.title = _("Instalacja i aktualizacja Picon")
+        
+        # --- POCZĄTEK ZMIANY: Odczyt wersji ---
+        version_path = resolveFilename(SCOPE_PLUGINS, "Extensions/PiconUpdater/version")
+        self.version = "1.0.0" # Domyślna, gdyby pliku nie było
+        if os.path.exists(version_path):
+            try:
+                with open(version_path, 'r') as f:
+                    self.version = f.read().strip()
+            except:
+                pass
+        
+        # Dodanie wersji do tytułu okna
+        self.title = _("Instalacja i aktualizacja Picon") + " v" + self.version
+        # --- KONIEC ZMIANY ---
+
         self.console = eConsoleAppContainer()
         self.selected_picon = None
         self.picload = ePicLoad()
