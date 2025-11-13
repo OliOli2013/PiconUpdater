@@ -1,18 +1,18 @@
 [
     {
-        "name": "Pełne 220x132 dark transparent V1",
+        "name": "Pełne 220x132 dark transparent",
         "url": "https://github.com/picons/picons/releases/download/2025-06-06--22-53-09/enigma2-plugin-picons-snp-full.220x132-190x102.dark.on.transparent_2025-06-06--22-53-09_all.ipk",
         "preview": "file:///usr/lib/enigma2/python/Plugins/Extensions/PiconUpdater/previews/Discovery.png",
         "satellites": ["13.0E Hot Bird", "19.2E Astra"]
     },
     {
-        "name": "Pełne 220x132 dark reflection V1",
+        "name": "Pełne 220x132 dark reflection",
         "url": "https://github.com/picons/picons/releases/download/2025-06-06--22-53-09/enigma2-plugin-picons-snp-full.220x132-190x102.dark.on.reflection_2025-06-06--22-53-09_all.ipk",
         "preview": "file:///usr/lib/enigma2/python/Plugins/Extensions/PiconUpdater/previews/Filmbox.png",
         "satellites": ["13.0E Hot Bird", "19.2E Astra"]
     },
     {
-        "name": "Pełne 220x132 light transparent V1",
+        "name": "Pełne 220x132 light transparent",
         "url": "https://github.com/picons/picons/releases/download/2025-06-06--22-53-09/enigma2-plugin-picons-snp-full.220x132-190x102.light.on.transparent_2025-06-06--22-53-09_all.ipk",
         "preview": "file:///usr/lib/enigma2/python/Plugins/Extensions/PiconUpdater/previews/TVP1.png",
         "satellites": ["13.0E Hot Bird", "19.2E Astra"]
