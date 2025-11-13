@@ -11,6 +11,7 @@ import re
 
 from Screens.Screen import Screen
 from Screens.MessageBox import MessageBox
+from Screens.ChoiceBox import ChoiceBox  # Dodano do obsługi menu wyboru lokalizacji
 from Components.MenuList import MenuList
 from Components.Label import Label
 from Components.ActionMap import ActionMap
@@ -99,7 +100,7 @@ class PiconUpdater(Screen):
         
         # Odczyt wersji
         version_path = resolveFilename(SCOPE_PLUGINS, "Extensions/PiconUpdater/version")
-        self.version = "1.0.0"
+        self.version = "1.1.0" # Domyślna
         if os.path.exists(version_path):
             try:
                 with open(version_path, 'r') as f:
@@ -131,15 +132,17 @@ class PiconUpdater(Screen):
         
         self["key_red"] = Label(_("Wyjście"))
         self["key_green"] = Label(_("Pobierz"))
-        self["key_yellow"] = Label(_("Język"))
+        self["key_yellow"] = Label(_("Lokalizacja")) # Zmieniono nazwę przycisku
         self["key_blue"] = Label(_("Restart GUI"))
+        
+        # Zaktualizowana stopka z nowym autorem
         self["footer"] = Label(_("by: Paweł Pawełek | msisystem@t.pl | Facebook: Enigma 2, Oprogramowanie i dodatki"))
         
         self["actions"] = ActionMap(["ColorActions", "NavigationActions", "SetupActions"], 
         {
             "red": self.exit,
             "green": self.download,
-            "yellow": self.changeLanguage,
+            "yellow": self.changeLocation, # Przypisanie nowej funkcji
             "blue": self.restartGUI,
             "up": self.up,
             "down": self.down,
@@ -155,6 +158,64 @@ class PiconUpdater(Screen):
         self.update_timer = eTimer()
         self.update_timer.callback.append(self.checkUpdate)
         self.update_timer.start(1000, True)
+
+    # --- ZARZĄDZANIE LOKALIZACJĄ (NOWOŚĆ) ---
+    def changeLocation(self):
+        """Wyświetla menu wyboru lokalizacji instalacji picon."""
+        options = [
+            (_("Pamięć wewnętrzna (Flash) - Domyślna"), "flash")
+        ]
+        
+        # Skanowanie dostępnych urządzeń w /media
+        potential_mounts = ["hdd", "usb", "usb2", "usb3", "mmc", "sd"]
+        for mount in potential_mounts:
+            path = f"/media/{mount}"
+            if os.path.exists(path) and os.path.isdir(path):
+                # Sprawdź czy to faktycznie punkt montowania lub istniejący katalog
+                options.append((f"Zewnętrzny nośnik: {path}", path))
+
+        self.session.openWithCallback(self.locationSelected, ChoiceBox, title=_("Wybierz miejsce instalacji picon (zostanie utworzony symlink):"), list=options)
+
+    def locationSelected(self, result):
+        if result:
+            target = result[1]
+            default_picon_path = "/usr/share/enigma2/picon"
+            
+            try:
+                # 1. Jeśli wybrano Flash (powrót do domyślnych)
+                if target == "flash":
+                    # Jeśli w /usr/share... jest symlink, usuwamy go i tworzymy zwykły katalog
+                    if os.path.islink(default_picon_path):
+                        os.remove(default_picon_path)
+                        os.makedirs(default_picon_path, mode=0o755)
+                        self.session.open(MessageBox, _("Przywrócono lokalizację domyślną (Flash)."), MessageBox.TYPE_INFO)
+                    elif os.path.isdir(default_picon_path):
+                        self.session.open(MessageBox, _("Lokalizacja jest już ustawiona na Flash."), MessageBox.TYPE_INFO)
+                
+                # 2. Jeśli wybrano nośnik zewnętrzny (HDD/USB)
+                else:
+                    external_picon_path = os.path.join(target, "picon")
+                    
+                    # Upewnij się, że folder docelowy na USB/HDD istnieje
+                    if not os.path.exists(external_picon_path):
+                        os.makedirs(external_picon_path, mode=0o755)
+                    
+                    # Usuń stare /usr/share/enigma2/picon (czy to folder czy link)
+                    if os.path.islink(default_picon_path):
+                        os.remove(default_picon_path)
+                    elif os.path.isdir(default_picon_path):
+                        shutil.rmtree(default_picon_path)
+                    
+                    # Stwórz nowy symlink: /usr/share... -> /media/usb/picon
+                    os.symlink(external_picon_path, default_picon_path)
+                    
+                    self.session.open(MessageBox, _("Lokalizacja zmieniona na:\n%s\n\nUtworzono symlink w systemie.") % external_picon_path, MessageBox.TYPE_INFO)
+                    
+            except Exception as e:
+                print(f"[PiconUpdater] Błąd zmiany lokalizacji: {e}")
+                self.session.open(MessageBox, _("Błąd podczas zmiany lokalizacji: ") + str(e), MessageBox.TYPE_ERROR)
+
+    # ----------------------------------------
 
     def checkUpdate(self):
         print("[PiconUpdater] Sprawdzanie aktualizacji...")
@@ -219,44 +280,29 @@ class PiconUpdater(Screen):
             self["preview"].instance.setPixmap(ptr)
             self["preview"].instance.show()
 
-    # --- MODYFIKACJA DLA KATALOGU PICON ---
     def createPiconDir(self):
-        """
-        Zwraca ścieżkę do /usr/share/enigma2/picon.
-        Jeśli jest to symlink (np. do USB), zwraca ścieżkę docelową.
-        Jeśli katalog nie istnieje, tworzy go.
-        """
+        """Zwraca ścieżkę do /usr/share/enigma2/picon (lub celu symlinka)."""
         target_path = "/usr/share/enigma2/picon"
-        
-        # Jeśli to symlink, podążamy za nim, aby operować na prawdziwym katalogu
         if os.path.islink(target_path):
             real_path = os.path.realpath(target_path)
             print(f"[PiconUpdater] Wykryto symlink {target_path} -> {real_path}")
             target_path = real_path
 
-        # Jeśli katalog nie istnieje, tworzymy go
         if not os.path.exists(target_path):
             try:
                 os.makedirs(target_path, mode=0o755)
-                print(f"[PiconUpdater] Utworzono katalog: {target_path}")
             except Exception as e:
-                print(f"[PiconUpdater] Błąd tworzenia katalogu: {e}")
                 raise Exception(f"Nie można utworzyć katalogu {target_path}")
-        
         return target_path
 
     def cleanupPiconDir(self, picon_dir):
-        """
-        Usuwa WSZYSTKIE pliki w picon_dir przed nową instalacją.
-        """
+        """Usuwa WSZYSTKIE pliki w picon_dir przed nową instalacją."""
         print(f"[PiconUpdater] Czyszczenie katalogu: {picon_dir}")
         if os.path.exists(picon_dir):
-            # Zabezpieczenie folderu previews wewnątrz pluginu (gdyby tam był)
             previews_path_in_plugin = resolveFilename(SCOPE_PLUGINS, "Extensions/PiconUpdater/previews")
             temp_previews_backup = "/tmp/picon_previews_backup"
             previews_moved = False
             
-            # Jeśli usuwamy w miejscu gdzie jest plugin, chronimy podglądy
             if os.path.commonpath([os.path.abspath(previews_path_in_plugin), os.path.abspath(picon_dir)]) == os.path.abspath(picon_dir):
                  if os.path.exists(previews_path_in_plugin):
                     try:
@@ -267,19 +313,13 @@ class PiconUpdater(Screen):
             for item in os.listdir(picon_dir):
                 item_path = os.path.join(picon_dir, item)
                 try:
-                    if os.path.isdir(item_path):
-                        shutil.rmtree(item_path)
-                    else:
-                        os.remove(item_path)
-                except Exception as e:
-                    print(f"[PiconUpdater] Błąd usuwania {item}: {e}")
-
-            # Przywracanie podglądów
-            if previews_moved:
-                try:
-                    shutil.move(temp_previews_backup, previews_path_in_plugin)
+                    if os.path.isdir(item_path): shutil.rmtree(item_path)
+                    else: os.remove(item_path)
                 except: pass
-    # --------------------------------------
+
+            if previews_moved:
+                try: shutil.move(temp_previews_backup, previews_path_in_plugin)
+                except: pass
 
     def get_package_name_from_ipk(self, ipk_filename):
         base_name = ipk_filename.rsplit('.ipk', 1)[0]
@@ -290,17 +330,14 @@ class PiconUpdater(Screen):
     def install_ipk(self, package_path):
         self["status"].setText(_("Instalowanie pakietu IPK..."))
         try:
-            # 1. Sprawdź i wyczyść katalog docelowy (usuń stare picony)
             target_dir = self.createPiconDir()
             self.cleanupPiconDir(target_dir)
 
-            # 2. Odinstaluj stary pakiet systemowy (opcjonalne, ale dobre dla porządku w opkg)
             package_filename = os.path.basename(package_path)
             package_name_to_remove = self.get_package_name_from_ipk(package_filename)
             if package_name_to_remove:
                 subprocess.run(["opkg", "remove", "--force-depends", package_name_to_remove], capture_output=True)
 
-            # 3. Instaluj nowy
             subprocess.run(["opkg", "install", "--force-overwrite", package_path], capture_output=True, check=True)
             
             self.session.open(MessageBox, _("Pakiet IPK zainstalowany pomyślnie! GUI zostanie zrestartowane."), MessageBox.TYPE_INFO, timeout=5)
@@ -314,14 +351,11 @@ class PiconUpdater(Screen):
 
     def install_tar_xz(self, archive_path):
         temp_extract_dir = "/tmp/picon_extract_temp"
-        
         try:
-            # 1. Przygotuj katalog docelowy (usuń stare picony)
             picon_dir = self.createPiconDir()
             if not os.access(picon_dir, os.W_OK): raise Exception(f"Brak uprawnień do {picon_dir}")
             self.cleanupPiconDir(picon_dir)
             
-            # 2. Rozpakuj do TEMP
             if os.path.exists(temp_extract_dir): shutil.rmtree(temp_extract_dir)
             os.makedirs(temp_extract_dir)
             self["status"].setText(_("Rozpakowywanie archiwum..."))
@@ -331,7 +365,6 @@ class PiconUpdater(Screen):
                     try: tar.extract(member, path=temp_extract_dir)
                     except: continue
 
-            # 3. Przenieś do /usr/share/enigma2/picon
             extracted_items = os.listdir(temp_extract_dir)
             source_dir_for_move = temp_extract_dir
             if len(extracted_items) == 1 and os.path.isdir(os.path.join(temp_extract_dir, extracted_items[0])):
@@ -347,7 +380,6 @@ class PiconUpdater(Screen):
                     shutil.move(source_path, destination_path)
                 except: traceback.print_exc()
             
-            # 4. Uprawnienia i reload
             for root, dirs, files in os.walk(picon_dir):
                 for d in dirs: os.chmod(os.path.join(root, d), 0o755)
                 for f in files: os.chmod(os.path.join(root, f), 0o644)
