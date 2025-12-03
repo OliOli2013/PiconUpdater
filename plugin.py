@@ -26,7 +26,7 @@ def localeInit():
 
 _ = localeInit()
 
-# --- KONFIGURACJA GITHUBA ---
+# --- CONFIGURATION ---
 CURRENT_VERSION = "1.2"
 REPO_USER = "OliOli2013"
 REPO_NAME = "PiconUpdater"
@@ -37,7 +37,7 @@ class PiconUpdater(Screen):
     desktop_size = getDesktop(0).size()
     current_date = datetime.datetime.now().strftime("%Y-%m-%d")
 
-    # --- SKÓRKA FULL HD (1920x1080) ---
+    # --- SKIN FULL HD (1920x1080) ---
     if desktop_size.height() > 720:
         skin = """
             <screen position="center,center" size="900,550" title="Picon Updater" backgroundColor="#1a1a1a">
@@ -66,7 +66,7 @@ class PiconUpdater(Screen):
                 <widget source="key_blue" render="Label" position="680,505" size="200,40" zPosition="2" font="Regular;24" valign="center" halign="center" transparent="1" foregroundColor="#ffffff" />
             </screen>
         """
-    # --- SKÓRKA HD (1280x720) ---
+    # --- SKIN HD (1280x720) ---
     else:
         skin = """
             <screen position="center,center" size="620,400" title="Picon Updater" backgroundColor="#1a1a1a">
@@ -117,15 +117,13 @@ class PiconUpdater(Screen):
         self["description"] = Label(_("Ładowanie..."))
         self["category_label"] = Label("")
         
-        # Stopka
         self.footer_base = "© Twórca: Paweł Pawełek | 📅 " + self.current_date + " | ✉ email: msisystem@t.pl"
         self["footer"] = Label(self.footer_base)
         
-        # Przyciski
         self["key_red"] = Label(_("Wyjście"))
         self["key_green"] = Label(_("Sprawdź wer.")) 
         self["key_yellow"] = Label(_("Język"))
-        self["key_blue"] = Label("") # Zostanie ustawione dynamicznie
+        self["key_blue"] = Label("") 
         
         self["actions"] = ActionMap(["ColorActions", "NavigationActions", "SetupActions"], 
         {
@@ -167,7 +165,7 @@ class PiconUpdater(Screen):
         self.selectionChanged()
         self.checkUpdate()
 
-    # --- AKTUALIZACJA ---
+    # --- UPDATE MECHANISM ---
     def checkUpdate(self):
         try:
             self.update_timer = eTimer()
@@ -196,7 +194,9 @@ class PiconUpdater(Screen):
         msg = _("Czy chcesz zaktualizować wtyczkę z GitHub?")
         if not self.new_version_available:
             msg = _("Wtyczka jest aktualna. Czy chcesz wymusić ponowną instalację?")
-        self.session.open(MessageBox, msg, MessageBox.TYPE_YESNO, callback=self.startUpdateProcess)
+        
+        # CRASH FIX: Using openWithCallback instead of passing callback to open
+        self.session.openWithCallback(self.startUpdateProcess, MessageBox, msg, MessageBox.TYPE_YESNO)
 
     def startUpdateProcess(self, confirmed):
         if not confirmed:
@@ -243,7 +243,7 @@ class PiconUpdater(Screen):
             self["status"].setText(_("Błąd aktualizacji!"))
             self.session.open(MessageBox, str(e), MessageBox.TYPE_ERROR)
 
-    # --- LOGIKA KATEGORII I PRZYCISKÓW ---
+    # --- CATEGORY LOGIC ---
     def _organize_picons(self, all_picons):
         self.picons_by_category = {}
         found_categories = set()
@@ -270,7 +270,6 @@ class PiconUpdater(Screen):
             self.updateBlueButton()
 
     def updateBlueButton(self):
-        """Ustawia nazwę niebieskiego przycisku na następną dostępną kategorię."""
         if not self.categories or len(self.categories) <= 1:
             self["key_blue"].setText("")
             return
@@ -278,7 +277,6 @@ class PiconUpdater(Screen):
         next_cat_idx = (self.current_category_idx + 1) % len(self.categories)
         next_cat_name = self.categories[next_cat_idx]
         
-        # Jeśli następna kategoria to Satelita, wymuś napis SAT
         if next_cat_name == "Satelita":
             self["key_blue"].setText("SAT")
         else:
@@ -322,8 +320,8 @@ class PiconUpdater(Screen):
                 else:
                     description_text += f"\nSat: {satellites}"
             
-            # Zmieniono \n\n na \n aby zaoszczędzić miejsce
-            description_text += "\n[OK] - Pobierz wybraną paczkę picon"
+            # Shorter instruction
+            description_text += "\n[OK] - Pobierz picony"
             
             self["description"].setText(description_text)
             self.loadPreview(self.selected_picon["preview"])
