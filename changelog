@@ -1,3 +1,11 @@
+Wersja 1.2.0 (2025-12-03):
+- Dodano mechanizm automatycznej aktualizacji wtyczki z GitHub (sprawdzanie wersji przy starcie).
+- Zmiana funkcji przycisków: Zielony służy do aktualizacji wtyczki, OK do pobierania picon.
+- Poprawiono proces instalacji: picony są teraz dodawane (merge), instalacja IPTV nie kasuje już picon satelitarnych.
+- Naprawiono błąd czarnego ekranu podglądu przy uruchamianiu wtyczki.
+- Usprawniono działanie niebieskiego przycisku (poprawne wyświetlanie nazwy następnej kategorii SAT/IPTV).
+- Odświeżono wygląd stopki (dodano ikony graficzne, usunięto odnośnik do Facebooka).
+
 Wersja 1.1.0 (2025-11-13):
 - Dodano wybór lokalizacji instalacji (Flash / HDD / USB / SD) pod żółtym przyciskiem.
 - Mechanizm tworzenia symlinków dla zewnętrznych nośników.
