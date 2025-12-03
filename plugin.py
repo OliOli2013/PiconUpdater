@@ -6,6 +6,7 @@ import zipfile
 import shutil
 import datetime
 import re
+import subprocess  # <--- TO BYŁO KLUCZOWE, TEGO BRAKOWAŁO PRZY INSTALACJI IPK
 
 from Screens.Screen import Screen
 from Screens.MessageBox import MessageBox
@@ -26,7 +27,7 @@ def localeInit():
 
 _ = localeInit()
 
-# --- CONFIGURATION ---
+# --- KONFIGURACJA GITHUBA ---
 CURRENT_VERSION = "1.2"
 REPO_USER = "OliOli2013"
 REPO_NAME = "PiconUpdater"
@@ -37,7 +38,7 @@ class PiconUpdater(Screen):
     desktop_size = getDesktop(0).size()
     current_date = datetime.datetime.now().strftime("%Y-%m-%d")
 
-    # --- SKIN FULL HD (1920x1080) ---
+    # --- SKÓRKA FULL HD (1920x1080) ---
     if desktop_size.height() > 720:
         skin = """
             <screen position="center,center" size="900,550" title="Picon Updater" backgroundColor="#1a1a1a">
@@ -66,7 +67,7 @@ class PiconUpdater(Screen):
                 <widget source="key_blue" render="Label" position="680,505" size="200,40" zPosition="2" font="Regular;24" valign="center" halign="center" transparent="1" foregroundColor="#ffffff" />
             </screen>
         """
-    # --- SKIN HD (1280x720) ---
+    # --- SKÓRKA HD (1280x720) ---
     else:
         skin = """
             <screen position="center,center" size="620,400" title="Picon Updater" backgroundColor="#1a1a1a">
@@ -165,7 +166,7 @@ class PiconUpdater(Screen):
         self.selectionChanged()
         self.checkUpdate()
 
-    # --- UPDATE MECHANISM ---
+    # --- MECHANIZM AKTUALIZACJI ---
     def checkUpdate(self):
         try:
             self.update_timer = eTimer()
@@ -195,7 +196,6 @@ class PiconUpdater(Screen):
         if not self.new_version_available:
             msg = _("Wtyczka jest aktualna. Czy chcesz wymusić ponowną instalację?")
         
-        # CRASH FIX: Using openWithCallback instead of passing callback to open
         self.session.openWithCallback(self.startUpdateProcess, MessageBox, msg, MessageBox.TYPE_YESNO)
 
     def startUpdateProcess(self, confirmed):
@@ -243,7 +243,7 @@ class PiconUpdater(Screen):
             self["status"].setText(_("Błąd aktualizacji!"))
             self.session.open(MessageBox, str(e), MessageBox.TYPE_ERROR)
 
-    # --- CATEGORY LOGIC ---
+    # --- LOGIKA KATEGORII ---
     def _organize_picons(self, all_picons):
         self.picons_by_category = {}
         found_categories = set()
@@ -320,7 +320,6 @@ class PiconUpdater(Screen):
                 else:
                     description_text += f"\nSat: {satellites}"
             
-            # Shorter instruction
             description_text += "\n[OK] - Pobierz picony"
             
             self["description"].setText(description_text)
