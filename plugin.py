@@ -6,7 +6,8 @@ import zipfile
 import shutil
 import datetime
 import re
-import subprocess  # <--- TO BYŁO KLUCZOWE, TEGO BRAKOWAŁO PRZY INSTALACJI IPK
+import subprocess
+import tarfile
 
 from Screens.Screen import Screen
 from Screens.MessageBox import MessageBox
@@ -44,23 +45,17 @@ class PiconUpdater(Screen):
             <screen position="center,center" size="900,550" title="Picon Updater" backgroundColor="#1a1a1a">
                 <widget name="title_header" position="20,10" size="860,40" font="Regular;32" foregroundColor="#ffffff" transparent="1" halign="center" valign="center" />
                 <eLabel position="20,55" size="860,2" backgroundColor="#333333" />
-                
                 <widget name="category_label" position="50,65" size="400,35" font="Regular;26" foregroundColor="#00ccff" transparent="1" halign="left" />
-                
                 <widget name="picon_list" position="50,105" size="400,280" itemHeight="35" font="Regular;26" foregroundColor="#ffffff" transparent="1" scrollbarMode="showOnDemand" />
                 <widget name="preview" position="470,105" size="380,220" backgroundColor="#333333" zPosition="1" />
-                
                 <widget name="status" position="470,335" size="380,30" font="Regular;22" foregroundColor="#ffff00" transparent="1" halign="center" />
                 <widget name="description" position="470,370" size="380,100" font="Regular;20" foregroundColor="#ffffff" transparent="1" halign="center" valign="top" />
-                
                 <eLabel position="20,475" size="860,2" backgroundColor="#333333" />
                 <widget name="footer" position="20,480" size="860,20" font="Regular;16" foregroundColor="#aaaaaa" transparent="1" halign="center" />
-                
                 <ePixmap position="20,505" size="200,40" pixmap="skin_default/buttons/red.png" zPosition="1" transparent="1" alphatest="on" />
                 <ePixmap position="240,505" size="200,40" pixmap="skin_default/buttons/green.png" zPosition="1" transparent="1" alphatest="on" />
                 <ePixmap position="460,505" size="200,40" pixmap="skin_default/buttons/yellow.png" zPosition="1" transparent="1" alphatest="on" />
                 <ePixmap position="680,505" size="200,40" pixmap="skin_default/buttons/blue.png" zPosition="1" transparent="1" alphatest="on" />
-                
                 <widget source="key_red" render="Label" position="20,505" size="200,40" zPosition="2" font="Regular;24" valign="center" halign="center" transparent="1" foregroundColor="#ffffff" />
                 <widget source="key_green" render="Label" position="240,505" size="200,40" zPosition="2" font="Regular;24" valign="center" halign="center" transparent="1" foregroundColor="#ffffff" />
                 <widget source="key_yellow" render="Label" position="460,505" size="200,40" zPosition="2" font="Regular;24" valign="center" halign="center" transparent="1" foregroundColor="#ffffff" />
@@ -73,23 +68,17 @@ class PiconUpdater(Screen):
             <screen position="center,center" size="620,400" title="Picon Updater" backgroundColor="#1a1a1a">
                 <widget name="title_header" position="10,5" size="600,30" font="Regular;24" foregroundColor="#ffffff" transparent="1" halign="center" valign="center" />
                 <eLabel position="10,38" size="600,1" backgroundColor="#333333" />
-                
                 <widget name="category_label" position="20,45" size="280,25" font="Regular;20" foregroundColor="#00ccff" transparent="1" halign="left" />
-                
                 <widget name="picon_list" position="20,75" size="280,215" itemHeight="30" font="Regular;20" foregroundColor="#ffffff" transparent="1" scrollbarMode="showOnDemand" />
                 <widget name="preview" position="310,75" size="280,160" backgroundColor="#333333" zPosition="1" />
-                
                 <widget name="status" position="310,240" size="280,25" font="Regular;18" foregroundColor="#ffff00" transparent="1" halign="center" />
                 <widget name="description" position="310,265" size="280,70" font="Regular;16" foregroundColor="#ffffff" transparent="1" halign="center" valign="top" />
-                
                 <eLabel position="10,340" size="600,1" backgroundColor="#333333" />
                 <widget name="footer" position="10,345" size="600,20" font="Regular;14" foregroundColor="#aaaaaa" transparent="1" halign="center" />
-                
                 <ePixmap position="20,365" size="140,35" pixmap="skin_default/buttons/red.png" zPosition="1" transparent="1" alphatest="on" />
                 <ePixmap position="170,365" size="140,35" pixmap="skin_default/buttons/green.png" zPosition="1" transparent="1" alphatest="on" />
                 <ePixmap position="320,365" size="140,35" pixmap="skin_default/buttons/yellow.png" zPosition="1" transparent="1" alphatest="on" />
                 <ePixmap position="470,365" size="140,35" pixmap="skin_default/buttons/blue.png" zPosition="1" transparent="1" alphatest="on" />
-                
                 <widget source="key_red" render="Label" position="20,365" size="140,35" zPosition="2" font="Regular;20" valign="center" halign="center" transparent="1" foregroundColor="#ffffff" />
                 <widget source="key_green" render="Label" position="170,365" size="140,35" zPosition="2" font="Regular;20" valign="center" halign="center" transparent="1" foregroundColor="#ffffff" />
                 <widget source="key_yellow" render="Label" position="320,365" size="140,35" zPosition="2" font="Regular;20" valign="center" halign="center" transparent="1" foregroundColor="#ffffff" />
@@ -166,7 +155,6 @@ class PiconUpdater(Screen):
         self.selectionChanged()
         self.checkUpdate()
 
-    # --- MECHANIZM AKTUALIZACJI ---
     def checkUpdate(self):
         try:
             self.update_timer = eTimer()
@@ -195,32 +183,26 @@ class PiconUpdater(Screen):
         msg = _("Czy chcesz zaktualizować wtyczkę z GitHub?")
         if not self.new_version_available:
             msg = _("Wtyczka jest aktualna. Czy chcesz wymusić ponowną instalację?")
-        
         self.session.openWithCallback(self.startUpdateProcess, MessageBox, msg, MessageBox.TYPE_YESNO)
 
     def startUpdateProcess(self, confirmed):
         if not confirmed:
             return
-            
         self["status"].setText(_("Pobieranie aktualizacji..."))
         tmp_zip = "/tmp/piconupdater.zip"
         tmp_extract_dir = "/tmp/piconupdater_extract"
         plugin_path = resolveFilename(SCOPE_PLUGINS, "Extensions/PiconUpdater/")
-        
         try:
             r = requests.get(GITHUB_ZIP_URL, stream=True, timeout=30)
             r.raise_for_status()
             with open(tmp_zip, 'wb') as f:
                 for chunk in r.iter_content(chunk_size=8192):
                     f.write(chunk)
-            
             if os.path.exists(tmp_extract_dir):
                 shutil.rmtree(tmp_extract_dir)
             os.makedirs(tmp_extract_dir)
-            
             with zipfile.ZipFile(tmp_zip, 'r') as zip_ref:
                 zip_ref.extractall(tmp_extract_dir)
-            
             extracted_root = os.path.join(tmp_extract_dir, f"{REPO_NAME}-main")
             if os.path.isdir(extracted_root):
                 for item in os.listdir(extracted_root):
@@ -233,17 +215,14 @@ class PiconUpdater(Screen):
                         shutil.copy2(s, d)
             else:
                 raise Exception("Błąd struktury ZIP")
-
             if os.path.exists(tmp_zip): os.remove(tmp_zip)
             if os.path.exists(tmp_extract_dir): shutil.rmtree(tmp_extract_dir)
-            
             self.session.open(MessageBox, _("Zaktualizowano! Restart GUI..."), MessageBox.TYPE_INFO, timeout=5)
             self.restartGUI(auto_restart=True)
         except Exception as e:
             self["status"].setText(_("Błąd aktualizacji!"))
             self.session.open(MessageBox, str(e), MessageBox.TYPE_ERROR)
 
-    # --- LOGIKA KATEGORII ---
     def _organize_picons(self, all_picons):
         self.picons_by_category = {}
         found_categories = set()
@@ -254,7 +233,6 @@ class PiconUpdater(Screen):
             if cat not in self.picons_by_category:
                 self.picons_by_category[cat] = []
             self.picons_by_category[cat].append(picon)
-        
         self.categories = sorted(list(found_categories))
         if "Satelita" in self.categories:
             self.categories.insert(0, self.categories.pop(self.categories.index("Satelita")))
@@ -273,10 +251,8 @@ class PiconUpdater(Screen):
         if not self.categories or len(self.categories) <= 1:
             self["key_blue"].setText("")
             return
-
         next_cat_idx = (self.current_category_idx + 1) % len(self.categories)
         next_cat_name = self.categories[next_cat_idx]
-        
         if next_cat_name == "Satelita":
             self["key_blue"].setText("SAT")
         else:
@@ -287,12 +263,9 @@ class PiconUpdater(Screen):
             self["picon_list"].setList([])
             self["category_label"].setText(_("Brak danych"))
             return
-
         current_cat_name = self.categories[self.current_category_idx]
         current_picons = self.picons_by_category[current_cat_name]
-        
         self["category_label"].setText(f"{current_cat_name} ({len(current_picons)})")
-        
         list_items = [p["name"] for p in current_picons]
         self["picon_list"].setList(list_items)
         self["picon_list"].moveToIndex(0)
@@ -301,27 +274,21 @@ class PiconUpdater(Screen):
     def selectionChanged(self):
         if not self.categories:
             return
-
         if self["preview"].instance:
             self["preview"].instance.setPixmap(None)
-
         selected_index = self["picon_list"].getSelectionIndex()
         current_cat_name = self.categories[self.current_category_idx]
         current_picons = self.picons_by_category[current_cat_name]
-
         if selected_index >= 0 and selected_index < len(current_picons):
             self.selected_picon = current_picons[selected_index]
             description_text = self.selected_picon["name"]
-            
             satellites = self.selected_picon.get("satellites")
             if satellites:
                 if isinstance(satellites, list):
                     description_text += f"\nSat: {', '.join(satellites)}"
                 else:
                     description_text += f"\nSat: {satellites}"
-            
             description_text += "\n[OK] - Pobierz picony"
-            
             self["description"].setText(description_text)
             self.loadPreview(self.selected_picon["preview"])
         else:
@@ -334,13 +301,10 @@ class PiconUpdater(Screen):
         try:
             if self["preview"].instance is None:
                 return
-
             tmp_path = "/tmp/picon_preview.png"
             if os.path.exists(tmp_path):
                 os.remove(tmp_path)
-            
             self["status"].setText(_("Ładowanie podglądu..."))
-            
             if url.startswith("file://"):
                 local_path = url.replace("file://", "")
                 if os.path.exists(local_path):
@@ -354,7 +318,6 @@ class PiconUpdater(Screen):
                 with open(tmp_path, 'wb') as f:
                     for chunk in r.iter_content(chunk_size=8192):
                         f.write(chunk)
-            
             self.picload.setPara([
                 self["preview"].instance.size().width(),
                 self["preview"].instance.size().height(),
@@ -362,7 +325,6 @@ class PiconUpdater(Screen):
             ])
             self.picload.startDecode(tmp_path)
             self["status"].setText("")
-            
         except Exception as e:
             print(f"[PiconUpdater] Preview Error: {e}")
             self["status"].setText(_("Błąd podglądu"))
@@ -380,7 +342,6 @@ class PiconUpdater(Screen):
                 real_picon_target = os.path.realpath("/picon")
                 if os.path.isdir(real_picon_target):
                     picon_dir = real_picon_target
-            
             if not os.path.exists(picon_dir):
                 os.makedirs(picon_dir, mode=0o755)
             return picon_dir
@@ -393,18 +354,65 @@ class PiconUpdater(Screen):
         if match: return base[:match.start()]
         return base
 
+    # --- RĘCZNA INSTALACJA IPK (ZAMIAST OPKG) ---
     def install_ipk(self, package_path):
-        self["status"].setText(_("Instalacja IPK..."))
+        self["status"].setText(_("Rozpakowywanie IPK (Ręcznie)..."))
+        picon_dir = self.createPiconDir()
+        tmp_extract_dir = "/tmp/ipk_extract"
+        
         try:
-            name = self.get_package_name_from_ipk(os.path.basename(package_path))
-            subprocess.run(["opkg", "remove", "--force-depends", name], capture_output=True)
-            subprocess.run(["opkg", "install", "--force-overwrite", package_path], check=True, capture_output=True)
-            self.session.open(MessageBox, _("Zainstalowano! Restart GUI..."), MessageBox.TYPE_INFO, timeout=5)
+            if os.path.exists(tmp_extract_dir):
+                shutil.rmtree(tmp_extract_dir)
+            os.makedirs(tmp_extract_dir)
+
+            # 1. AR/TAR
+            cmd = ["ar", "x", package_path]
+            proc = subprocess.run(cmd, cwd=tmp_extract_dir, capture_output=True)
+            if proc.returncode != 0:
+                print("[PiconUpdater] 'ar' failed, trying 'tar'")
+                with tarfile.open(package_path, "r") as tar:
+                    tar.extractall(tmp_extract_dir)
+
+            # 2. Find data.tar
+            data_archive = None
+            for f in os.listdir(tmp_extract_dir):
+                if f.startswith("data.tar"):
+                    data_archive = os.path.join(tmp_extract_dir, f)
+                    break
+            
+            if not data_archive:
+                raise Exception("Nie znaleziono data.tar.gz w IPK")
+
+            # 3. Extract data
+            tmp_data_dir = os.path.join(tmp_extract_dir, "data_content")
+            os.makedirs(tmp_data_dir)
+            with tarfile.open(data_archive, "r") as tar:
+                tar.extractall(tmp_data_dir)
+
+            # 4. Copy Files (FORCE OVERWRITE)
+            count = 0
+            for root, dirs, files in os.walk(tmp_data_dir):
+                for file in files:
+                    if file.endswith(".png"):
+                        src = os.path.join(root, file)
+                        dst = os.path.join(picon_dir, file)
+                        
+                        # FORCE COPY (shutil.copy2 nadpisuje plik jeśli istnieje)
+                        try:
+                            shutil.copy2(src, dst)
+                            count += 1
+                        except Exception as copy_err:
+                            print(f"Error copying {file}: {copy_err}")
+            
+            self.session.open(MessageBox, _(f"Zainstalowano pomyślnie {count} picon!"), MessageBox.TYPE_INFO, timeout=5)
             self.restartGUI(auto_restart=True)
+
         except Exception as e:
-            self.session.open(MessageBox, _("Błąd instalacji IPK: ") + str(e), MessageBox.TYPE_ERROR)
+            print(f"[PiconUpdater] IPK Manual Install Error: {e}")
+            self.session.open(MessageBox, _("Błąd ręcznej instalacji IPK: ") + str(e), MessageBox.TYPE_ERROR)
         finally:
             if os.path.exists(package_path): os.remove(package_path)
+            if os.path.exists(tmp_extract_dir): shutil.rmtree(tmp_extract_dir)
 
     def install_tar_xz(self, archive_path):
         temp_dir = "/tmp/picon_extract"
@@ -427,14 +435,17 @@ class PiconUpdater(Screen):
                 source_path = os.path.join(src, item)
                 destination_path = os.path.join(picon_dir, item)
                 
-                if os.path.exists(destination_path):
-                    if os.path.isdir(destination_path):
+                # FORCE OVERWRITE LOGIC FOR DIRS/FILES
+                if os.path.isdir(source_path):
+                    # For directories, use copytree with dirs_exist_ok (Python 3.8+) or manual handling
+                    # Since Enigma python varies, safer to remove dst if exists then move
+                    if os.path.exists(destination_path):
                         shutil.rmtree(destination_path)
-                    else:
-                        os.remove(destination_path)
-                
-                shutil.move(source_path, destination_path)
-                
+                    shutil.move(source_path, destination_path)
+                else:
+                    # For files, simple copy2 (overwrites)
+                    shutil.copy2(source_path, destination_path)
+
             os.system("touch /usr/share/enigma2/picon/force_reload")
             self.session.open(MessageBox, _("Zainstalowano! Restart GUI..."), MessageBox.TYPE_INFO, timeout=5)
             self.restartGUI(auto_restart=True)
