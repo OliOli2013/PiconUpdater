@@ -37,52 +37,62 @@ class PiconUpdater(Screen):
     desktop_size = getDesktop(0).size()
     current_date = datetime.datetime.now().strftime("%Y-%m-%d")
 
-    # Skórka FULL HD
+    # --- SKÓRKA FULL HD (1920x1080) ---
     if desktop_size.height() > 720:
         skin = """
             <screen position="center,center" size="900,550" title="Picon Updater" backgroundColor="#1a1a1a">
                 <widget name="title_header" position="20,10" size="860,40" font="Regular;32" foregroundColor="#ffffff" transparent="1" halign="center" valign="center" />
                 <eLabel position="20,55" size="860,2" backgroundColor="#333333" />
-                <widget name="category_label" position="50,70" size="400,35" font="Regular;26" foregroundColor="#00ccff" transparent="1" halign="left" />
-                <widget name="picon_list" position="50,110" size="400,290" itemHeight="35" font="Regular;26" foregroundColor="#ffffff" transparent="1" scrollbarMode="showOnDemand" />
-                <widget name="preview" position="470,110" size="380,220" backgroundColor="#333333" zPosition="1" />
-                <widget name="status" position="470,340" size="380,30" font="Regular;22" foregroundColor="#ffff00" transparent="1" halign="center" />
-                <widget name="description" position="470,380" size="380,80" font="Regular;20" foregroundColor="#ffffff" transparent="1" halign="center" valign="top" />
-                <eLabel position="20,460" size="860,2" backgroundColor="#333333" />
-                <widget name="footer" position="20,470" size="860,20" font="Regular;16" foregroundColor="#aaaaaa" transparent="1" halign="center" />
                 
-                <ePixmap position="20,500" size="200,40" pixmap="skin_default/buttons/red.png" zPosition="1" transparent="1" alphatest="on" />
-                <ePixmap position="240,500" size="200,40" pixmap="skin_default/buttons/green.png" zPosition="1" transparent="1" alphatest="on" />
-                <ePixmap position="460,500" size="200,40" pixmap="skin_default/buttons/yellow.png" zPosition="1" transparent="1" alphatest="on" />
-                <ePixmap position="680,500" size="200,40" pixmap="skin_default/buttons/blue.png" zPosition="1" transparent="1" alphatest="on" />
+                <widget name="category_label" position="50,65" size="400,35" font="Regular;26" foregroundColor="#00ccff" transparent="1" halign="left" />
                 
-                <widget source="key_red" render="Label" position="20,500" size="200,40" zPosition="2" font="Regular;24" valign="center" halign="center" transparent="1" foregroundColor="#ffffff" />
-                <widget source="key_green" render="Label" position="240,500" size="200,40" zPosition="2" font="Regular;24" valign="center" halign="center" transparent="1" foregroundColor="#ffffff" />
-                <widget source="key_yellow" render="Label" position="460,500" size="200,40" zPosition="2" font="Regular;24" valign="center" halign="center" transparent="1" foregroundColor="#ffffff" />
-                <widget source="key_blue" render="Label" position="680,500" size="200,40" zPosition="2" font="Regular;24" valign="center" halign="center" transparent="1" foregroundColor="#ffffff" />
+                <widget name="picon_list" position="50,105" size="400,280" itemHeight="35" font="Regular;26" foregroundColor="#ffffff" transparent="1" scrollbarMode="showOnDemand" />
+                <widget name="preview" position="470,105" size="380,220" backgroundColor="#333333" zPosition="1" />
+                
+                <widget name="status" position="470,335" size="380,30" font="Regular;22" foregroundColor="#ffff00" transparent="1" halign="center" />
+                <widget name="description" position="470,370" size="380,100" font="Regular;20" foregroundColor="#ffffff" transparent="1" halign="center" valign="top" />
+                
+                <eLabel position="20,475" size="860,2" backgroundColor="#333333" />
+                <widget name="footer" position="20,480" size="860,20" font="Regular;16" foregroundColor="#aaaaaa" transparent="1" halign="center" />
+                
+                <ePixmap position="20,505" size="200,40" pixmap="skin_default/buttons/red.png" zPosition="1" transparent="1" alphatest="on" />
+                <ePixmap position="240,505" size="200,40" pixmap="skin_default/buttons/green.png" zPosition="1" transparent="1" alphatest="on" />
+                <ePixmap position="460,505" size="200,40" pixmap="skin_default/buttons/yellow.png" zPosition="1" transparent="1" alphatest="on" />
+                <ePixmap position="680,505" size="200,40" pixmap="skin_default/buttons/blue.png" zPosition="1" transparent="1" alphatest="on" />
+                
+                <widget source="key_red" render="Label" position="20,505" size="200,40" zPosition="2" font="Regular;24" valign="center" halign="center" transparent="1" foregroundColor="#ffffff" />
+                <widget source="key_green" render="Label" position="240,505" size="200,40" zPosition="2" font="Regular;24" valign="center" halign="center" transparent="1" foregroundColor="#ffffff" />
+                <widget source="key_yellow" render="Label" position="460,505" size="200,40" zPosition="2" font="Regular;24" valign="center" halign="center" transparent="1" foregroundColor="#ffffff" />
+                <widget source="key_blue" render="Label" position="680,505" size="200,40" zPosition="2" font="Regular;24" valign="center" halign="center" transparent="1" foregroundColor="#ffffff" />
             </screen>
         """
-    # Skórka HD
+    # --- SKÓRKA HD (1280x720) ---
     else:
         skin = """
             <screen position="center,center" size="620,400" title="Picon Updater" backgroundColor="#1a1a1a">
                 <widget name="title_header" position="10,5" size="600,30" font="Regular;24" foregroundColor="#ffffff" transparent="1" halign="center" valign="center" />
                 <eLabel position="10,38" size="600,1" backgroundColor="#333333" />
+                
                 <widget name="category_label" position="20,45" size="280,25" font="Regular;20" foregroundColor="#00ccff" transparent="1" halign="left" />
+                
                 <widget name="picon_list" position="20,75" size="280,215" itemHeight="30" font="Regular;20" foregroundColor="#ffffff" transparent="1" scrollbarMode="showOnDemand" />
                 <widget name="preview" position="310,75" size="280,160" backgroundColor="#333333" zPosition="1" />
+                
                 <widget name="status" position="310,240" size="280,25" font="Regular;18" foregroundColor="#ffff00" transparent="1" halign="center" />
-                <widget name="description" position="310,265" size="280,50" font="Regular;16" foregroundColor="#ffffff" transparent="1" halign="center" valign="top" />
-                <eLabel position="10,320" size="600,1" backgroundColor="#333333" />
-                <widget name="footer" position="10,330" size="600,20" font="Regular;14" foregroundColor="#aaaaaa" transparent="1" halign="center" />
-                <ePixmap position="20,360" size="140,35" pixmap="skin_default/buttons/red.png" zPosition="1" transparent="1" alphatest="on" />
-                <ePixmap position="170,360" size="140,35" pixmap="skin_default/buttons/green.png" zPosition="1" transparent="1" alphatest="on" />
-                <ePixmap position="320,360" size="140,35" pixmap="skin_default/buttons/yellow.png" zPosition="1" transparent="1" alphatest="on" />
-                <ePixmap position="470,360" size="140,35" pixmap="skin_default/buttons/blue.png" zPosition="1" transparent="1" alphatest="on" />
-                <widget source="key_red" render="Label" position="20,360" size="140,35" zPosition="2" font="Regular;20" valign="center" halign="center" transparent="1" foregroundColor="#ffffff" />
-                <widget source="key_green" render="Label" position="170,360" size="140,35" zPosition="2" font="Regular;20" valign="center" halign="center" transparent="1" foregroundColor="#ffffff" />
-                <widget source="key_yellow" render="Label" position="320,360" size="140,35" zPosition="2" font="Regular;20" valign="center" halign="center" transparent="1" foregroundColor="#ffffff" />
-                <widget source="key_blue" render="Label" position="470,360" size="140,35" zPosition="2" font="Regular;20" valign="center" halign="center" transparent="1" foregroundColor="#ffffff" />
+                <widget name="description" position="310,265" size="280,70" font="Regular;16" foregroundColor="#ffffff" transparent="1" halign="center" valign="top" />
+                
+                <eLabel position="10,340" size="600,1" backgroundColor="#333333" />
+                <widget name="footer" position="10,345" size="600,20" font="Regular;14" foregroundColor="#aaaaaa" transparent="1" halign="center" />
+                
+                <ePixmap position="20,365" size="140,35" pixmap="skin_default/buttons/red.png" zPosition="1" transparent="1" alphatest="on" />
+                <ePixmap position="170,365" size="140,35" pixmap="skin_default/buttons/green.png" zPosition="1" transparent="1" alphatest="on" />
+                <ePixmap position="320,365" size="140,35" pixmap="skin_default/buttons/yellow.png" zPosition="1" transparent="1" alphatest="on" />
+                <ePixmap position="470,365" size="140,35" pixmap="skin_default/buttons/blue.png" zPosition="1" transparent="1" alphatest="on" />
+                
+                <widget source="key_red" render="Label" position="20,365" size="140,35" zPosition="2" font="Regular;20" valign="center" halign="center" transparent="1" foregroundColor="#ffffff" />
+                <widget source="key_green" render="Label" position="170,365" size="140,35" zPosition="2" font="Regular;20" valign="center" halign="center" transparent="1" foregroundColor="#ffffff" />
+                <widget source="key_yellow" render="Label" position="320,365" size="140,35" zPosition="2" font="Regular;20" valign="center" halign="center" transparent="1" foregroundColor="#ffffff" />
+                <widget source="key_blue" render="Label" position="470,365" size="140,35" zPosition="2" font="Regular;20" valign="center" halign="center" transparent="1" foregroundColor="#ffffff" />
             </screen>
         """
 
@@ -115,12 +125,12 @@ class PiconUpdater(Screen):
         self["key_red"] = Label(_("Wyjście"))
         self["key_green"] = Label(_("Sprawdź wer.")) 
         self["key_yellow"] = Label(_("Język"))
-        self["key_blue"] = Label("") 
+        self["key_blue"] = Label("") # Zostanie ustawione dynamicznie
         
         self["actions"] = ActionMap(["ColorActions", "NavigationActions", "SetupActions"], 
         {
             "red": self.exit,
-            "green": self.updatePlugin, # Zmiana akcji na aktualizację wtyczki
+            "green": self.updatePlugin,
             "yellow": self.changeLanguage,
             "blue": self.nextCategory,
             "up": self.up,
@@ -128,7 +138,7 @@ class PiconUpdater(Screen):
             "left": self.left,
             "right": self.right,
             "cancel": self.exit,
-            "ok": self.download # OK teraz pobiera picony
+            "ok": self.download
         }, -1)
         
         self["picon_list"].onSelectionChanged.append(self.selectionChanged)
@@ -155,28 +165,22 @@ class PiconUpdater(Screen):
     def onStart(self):
         self.refreshList()
         self.selectionChanged()
-        # Sprawdź aktualizację w tle po uruchomieniu
         self.checkUpdate()
 
-    # --- MECHANIZM AKTUALIZACJI WTYCZKI Z GITHUB ---
+    # --- AKTUALIZACJA ---
     def checkUpdate(self):
-        """Pobiera plik version z GitHuba i porównuje z obecną wersją."""
         try:
             self.update_timer = eTimer()
             self.update_timer.callback.append(self._do_check_update)
-            self.update_timer.start(1000, True) # Czekaj 1s po starcie
+            self.update_timer.start(1000, True)
         except:
             pass
 
     def _do_check_update(self):
         try:
-            print(f"[PiconUpdater] Checking version at: {GITHUB_RAW_VERSION_URL}")
             r = requests.get(GITHUB_RAW_VERSION_URL, timeout=3)
             if r.status_code == 200:
                 remote_version = r.text.strip()
-                print(f"[PiconUpdater] Remote: {remote_version}, Local: {CURRENT_VERSION}")
-                
-                # Proste porównanie stringów
                 if remote_version != CURRENT_VERSION:
                     self.new_version_available = True
                     self["status"].setText(_("Dostępna nowa wersja: ") + remote_version)
@@ -189,11 +193,9 @@ class PiconUpdater(Screen):
             print(f"[PiconUpdater] Check update error: {e}")
 
     def updatePlugin(self):
-        """Pobiera ZIP repozytorium, wypakowuje i nadpisuje pliki."""
         msg = _("Czy chcesz zaktualizować wtyczkę z GitHub?")
         if not self.new_version_available:
             msg = _("Wtyczka jest aktualna. Czy chcesz wymusić ponowną instalację?")
-            
         self.session.open(MessageBox, msg, MessageBox.TYPE_YESNO, callback=self.startUpdateProcess)
 
     def startUpdateProcess(self, confirmed):
@@ -201,22 +203,17 @@ class PiconUpdater(Screen):
             return
             
         self["status"].setText(_("Pobieranie aktualizacji..."))
-        
         tmp_zip = "/tmp/piconupdater.zip"
         tmp_extract_dir = "/tmp/piconupdater_extract"
         plugin_path = resolveFilename(SCOPE_PLUGINS, "Extensions/PiconUpdater/")
         
         try:
-            # 1. Pobieranie ZIP
-            print(f"[PiconUpdater] Downloading zip from {GITHUB_ZIP_URL}")
             r = requests.get(GITHUB_ZIP_URL, stream=True, timeout=30)
             r.raise_for_status()
             with open(tmp_zip, 'wb') as f:
                 for chunk in r.iter_content(chunk_size=8192):
                     f.write(chunk)
             
-            # 2. Rozpakowywanie
-            print("[PiconUpdater] Extracting zip...")
             if os.path.exists(tmp_extract_dir):
                 shutil.rmtree(tmp_extract_dir)
             os.makedirs(tmp_extract_dir)
@@ -224,41 +221,29 @@ class PiconUpdater(Screen):
             with zipfile.ZipFile(tmp_zip, 'r') as zip_ref:
                 zip_ref.extractall(tmp_extract_dir)
             
-            # 3. Kopiowanie plików (z podkatalogu repozytorium-main)
-            # GitHub tworzy folder np. PiconUpdater-main
             extracted_root = os.path.join(tmp_extract_dir, f"{REPO_NAME}-main")
-            
             if os.path.isdir(extracted_root):
-                print(f"[PiconUpdater] Copying files from {extracted_root} to {plugin_path}")
-                # Kopiujemy zawartość folderu nadpisując pliki wtyczki
                 for item in os.listdir(extracted_root):
                     s = os.path.join(extracted_root, item)
                     d = os.path.join(plugin_path, item)
                     if os.path.isdir(s):
-                        # Dla katalogów używamy copytree z dirs_exist_ok (Python 3.8+)
-                        # W starszych Enigmach trzeba ręcznie, tu używamy prostej metody:
-                        if os.path.exists(d):
-                            shutil.rmtree(d)
+                        if os.path.exists(d): shutil.rmtree(d)
                         shutil.copytree(s, d)
                     else:
                         shutil.copy2(s, d)
             else:
-                raise Exception("Nie znaleziono folderu głównego w archiwum ZIP")
+                raise Exception("Błąd struktury ZIP")
 
-            # 4. Sprzątanie
             if os.path.exists(tmp_zip): os.remove(tmp_zip)
             if os.path.exists(tmp_extract_dir): shutil.rmtree(tmp_extract_dir)
             
-            self.session.open(MessageBox, _("Wtyczka zaktualizowana! Restart GUI..."), MessageBox.TYPE_INFO, timeout=5)
+            self.session.open(MessageBox, _("Zaktualizowano! Restart GUI..."), MessageBox.TYPE_INFO, timeout=5)
             self.restartGUI(auto_restart=True)
-            
         except Exception as e:
             self["status"].setText(_("Błąd aktualizacji!"))
-            print(f"[PiconUpdater] Update failed: {e}")
-            self.session.open(MessageBox, _("Błąd aktualizacji wtyczki: ") + str(e), MessageBox.TYPE_ERROR)
+            self.session.open(MessageBox, str(e), MessageBox.TYPE_ERROR)
 
-    # --- KONIEC MECHANIZMU AKTUALIZACJI ---
-
+    # --- LOGIKA KATEGORII I PRZYCISKÓW ---
     def _organize_picons(self, all_picons):
         self.picons_by_category = {}
         found_categories = set()
@@ -285,6 +270,7 @@ class PiconUpdater(Screen):
             self.updateBlueButton()
 
     def updateBlueButton(self):
+        """Ustawia nazwę niebieskiego przycisku na następną dostępną kategorię."""
         if not self.categories or len(self.categories) <= 1:
             self["key_blue"].setText("")
             return
@@ -292,6 +278,7 @@ class PiconUpdater(Screen):
         next_cat_idx = (self.current_category_idx + 1) % len(self.categories)
         next_cat_name = self.categories[next_cat_idx]
         
+        # Jeśli następna kategoria to Satelita, wymuś napis SAT
         if next_cat_name == "Satelita":
             self["key_blue"].setText("SAT")
         else:
@@ -335,8 +322,8 @@ class PiconUpdater(Screen):
                 else:
                     description_text += f"\nSat: {satellites}"
             
-            # Informacja o przycisku OK
-            description_text += "\n\n[OK] - Pobierz wybraną paczkę picon"
+            # Zmieniono \n\n na \n aby zaoszczędzić miejsce
+            description_text += "\n[OK] - Pobierz wybraną paczkę picon"
             
             self["description"].setText(description_text)
             self.loadPreview(self.selected_picon["preview"])
@@ -414,7 +401,6 @@ class PiconUpdater(Screen):
         try:
             name = self.get_package_name_from_ipk(os.path.basename(package_path))
             subprocess.run(["opkg", "remove", "--force-depends", name], capture_output=True)
-            
             subprocess.run(["opkg", "install", "--force-overwrite", package_path], check=True, capture_output=True)
             self.session.open(MessageBox, _("Zainstalowano! Restart GUI..."), MessageBox.TYPE_INFO, timeout=5)
             self.restartGUI(auto_restart=True)
@@ -463,7 +449,6 @@ class PiconUpdater(Screen):
             if os.path.exists(temp_dir): shutil.rmtree(temp_dir)
 
     def download(self):
-        # Ta funkcja jest teraz podpięta pod przycisk OK
         if self.selected_picon:
             url = self.selected_picon.get("url")
             if url:
