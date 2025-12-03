@@ -2,8 +2,7 @@ import os
 import gettext
 import json
 import requests
-import tarfile
-import subprocess
+import zipfile
 import shutil
 import datetime
 import re
@@ -27,10 +26,12 @@ def localeInit():
 
 _ = localeInit()
 
-# --- KONFIGURACJA WERSJI I GITHUBA ---
+# --- KONFIGURACJA GITHUBA ---
 CURRENT_VERSION = "1.2"
-GITHUB_RAW_URL = "https://raw.githubusercontent.com/OliOli2013/PiconUpdater/main/"
-VERSION_FILE_URL = GITHUB_RAW_URL + "version"
+REPO_USER = "OliOli2013"
+REPO_NAME = "PiconUpdater"
+GITHUB_RAW_VERSION_URL = f"https://raw.githubusercontent.com/{REPO_USER}/{REPO_NAME}/main/version"
+GITHUB_ZIP_URL = f"https://github.com/{REPO_USER}/{REPO_NAME}/archive/refs/heads/main.zip"
 
 class PiconUpdater(Screen):
     desktop_size = getDesktop(0).size()
@@ -88,7 +89,7 @@ class PiconUpdater(Screen):
     def __init__(self, session):
         Screen.__init__(self, session)
         self.session = session
-        self.title = "Picon Updater " + CURRENT_VERSION
+        self.title = "Picon Updater v" + CURRENT_VERSION
         self.console = eConsoleAppContainer()
         self.selected_picon = None
         self.picload = ePicLoad()
@@ -112,7 +113,7 @@ class PiconUpdater(Screen):
         
         # Przyciski
         self["key_red"] = Label(_("Wyjście"))
-        self["key_green"] = Label(_("Aktualizuj")) # Zmieniono z "Pobierz"
+        self["key_green"] = Label(_("Sprawdź wer.")) 
         self["key_yellow"] = Label(_("Język"))
         self["key_blue"] = Label("") 
         
@@ -157,24 +158,25 @@ class PiconUpdater(Screen):
         # Sprawdź aktualizację w tle po uruchomieniu
         self.checkUpdate()
 
-    # --- MECHANIZM AKTUALIZACJI WTYCZKI ---
+    # --- MECHANIZM AKTUALIZACJI WTYCZKI Z GITHUB ---
     def checkUpdate(self):
         """Pobiera plik version z GitHuba i porównuje z obecną wersją."""
         try:
-            # Używamy eConsoleAppContainer lub requests w wątku, ale tutaj dla prostoty requests z krótkim timeoutem
-            # W idealnym świecie powinno to być asynchroniczne, ale plik jest malutki.
             self.update_timer = eTimer()
             self.update_timer.callback.append(self._do_check_update)
-            self.update_timer.start(500, True)
+            self.update_timer.start(1000, True) # Czekaj 1s po starcie
         except:
             pass
 
     def _do_check_update(self):
         try:
-            r = requests.get(VERSION_FILE_URL, timeout=3)
+            print(f"[PiconUpdater] Checking version at: {GITHUB_RAW_VERSION_URL}")
+            r = requests.get(GITHUB_RAW_VERSION_URL, timeout=3)
             if r.status_code == 200:
                 remote_version = r.text.strip()
-                # Proste porównanie stringów (zakładamy format X.Y)
+                print(f"[PiconUpdater] Remote: {remote_version}, Local: {CURRENT_VERSION}")
+                
+                # Proste porównanie stringów
                 if remote_version != CURRENT_VERSION:
                     self.new_version_available = True
                     self["status"].setText(_("Dostępna nowa wersja: ") + remote_version)
@@ -182,43 +184,77 @@ class PiconUpdater(Screen):
                     self["key_green"].setText(_("Aktualizuj!"))
                 else:
                     self["status"].setText(_("Wtyczka jest aktualna."))
+                    self["key_green"].setText(_("Przeinstaluj"))
         except Exception as e:
             print(f"[PiconUpdater] Check update error: {e}")
 
     def updatePlugin(self):
-        """Pobiera nową wersję plików wtyczki i restartuje GUI."""
+        """Pobiera ZIP repozytorium, wypakowuje i nadpisuje pliki."""
+        msg = _("Czy chcesz zaktualizować wtyczkę z GitHub?")
         if not self.new_version_available:
-            self.session.open(MessageBox, _("Wtyczka jest aktualna (v%s). Czy mimo to chcesz wymusić przeinstalowanie z GitHub?") % CURRENT_VERSION, MessageBox.TYPE_YESNO, callback=self.forceUpdate)
-        else:
-            self.forceUpdate(True)
+            msg = _("Wtyczka jest aktualna. Czy chcesz wymusić ponowną instalację?")
+            
+        self.session.open(MessageBox, msg, MessageBox.TYPE_YESNO, callback=self.startUpdateProcess)
 
-    def forceUpdate(self, confirmed):
+    def startUpdateProcess(self, confirmed):
         if not confirmed:
             return
             
-        self["status"].setText(_("Pobieranie aktualizacji wtyczki..."))
+        self["status"].setText(_("Pobieranie aktualizacji..."))
         
-        # Lista plików do zaktualizowania (podstawowe pliki)
-        files_to_update = ["plugin.py", "picons.json", "version"]
-        base_path = resolveFilename(SCOPE_PLUGINS, "Extensions/PiconUpdater/")
+        tmp_zip = "/tmp/piconupdater.zip"
+        tmp_extract_dir = "/tmp/piconupdater_extract"
+        plugin_path = resolveFilename(SCOPE_PLUGINS, "Extensions/PiconUpdater/")
         
         try:
-            for filename in files_to_update:
-                url = GITHUB_RAW_URL + filename
-                save_path = os.path.join(base_path, filename)
-                
-                print(f"[PiconUpdater] Updating {filename} from {url}")
-                r = requests.get(url, stream=True, timeout=10)
-                r.raise_for_status()
-                with open(save_path, 'wb') as f:
-                    for chunk in r.iter_content(chunk_size=8192):
-                        f.write(chunk)
-                        
-            self.session.open(MessageBox, _("Wtyczka zaktualizowana pomyślnie! GUI zostanie zrestartowane."), MessageBox.TYPE_INFO, timeout=5)
+            # 1. Pobieranie ZIP
+            print(f"[PiconUpdater] Downloading zip from {GITHUB_ZIP_URL}")
+            r = requests.get(GITHUB_ZIP_URL, stream=True, timeout=30)
+            r.raise_for_status()
+            with open(tmp_zip, 'wb') as f:
+                for chunk in r.iter_content(chunk_size=8192):
+                    f.write(chunk)
+            
+            # 2. Rozpakowywanie
+            print("[PiconUpdater] Extracting zip...")
+            if os.path.exists(tmp_extract_dir):
+                shutil.rmtree(tmp_extract_dir)
+            os.makedirs(tmp_extract_dir)
+            
+            with zipfile.ZipFile(tmp_zip, 'r') as zip_ref:
+                zip_ref.extractall(tmp_extract_dir)
+            
+            # 3. Kopiowanie plików (z podkatalogu repozytorium-main)
+            # GitHub tworzy folder np. PiconUpdater-main
+            extracted_root = os.path.join(tmp_extract_dir, f"{REPO_NAME}-main")
+            
+            if os.path.isdir(extracted_root):
+                print(f"[PiconUpdater] Copying files from {extracted_root} to {plugin_path}")
+                # Kopiujemy zawartość folderu nadpisując pliki wtyczki
+                for item in os.listdir(extracted_root):
+                    s = os.path.join(extracted_root, item)
+                    d = os.path.join(plugin_path, item)
+                    if os.path.isdir(s):
+                        # Dla katalogów używamy copytree z dirs_exist_ok (Python 3.8+)
+                        # W starszych Enigmach trzeba ręcznie, tu używamy prostej metody:
+                        if os.path.exists(d):
+                            shutil.rmtree(d)
+                        shutil.copytree(s, d)
+                    else:
+                        shutil.copy2(s, d)
+            else:
+                raise Exception("Nie znaleziono folderu głównego w archiwum ZIP")
+
+            # 4. Sprzątanie
+            if os.path.exists(tmp_zip): os.remove(tmp_zip)
+            if os.path.exists(tmp_extract_dir): shutil.rmtree(tmp_extract_dir)
+            
+            self.session.open(MessageBox, _("Wtyczka zaktualizowana! Restart GUI..."), MessageBox.TYPE_INFO, timeout=5)
             self.restartGUI(auto_restart=True)
             
         except Exception as e:
             self["status"].setText(_("Błąd aktualizacji!"))
+            print(f"[PiconUpdater] Update failed: {e}")
             self.session.open(MessageBox, _("Błąd aktualizacji wtyczki: ") + str(e), MessageBox.TYPE_ERROR)
 
     # --- KONIEC MECHANIZMU AKTUALIZACJI ---
@@ -299,7 +335,7 @@ class PiconUpdater(Screen):
                 else:
                     description_text += f"\nSat: {satellites}"
             
-            # Dodanie informacji o przycisku OK
+            # Informacja o przycisku OK
             description_text += "\n\n[OK] - Pobierz wybraną paczkę picon"
             
             self["description"].setText(description_text)
