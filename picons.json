@@ -1,21 +1,21 @@
 [
     {
         "name": "Pełne 220x132 dark transparent V1",
-        "url": "https://github.com/OliOli2013/PiconUpdater/releases/download/v1.0-iptv/sat_dark_transparent.ipk",
+        "url": "https://github.com/picons/picons/releases/download/2025-11-29--16-19-32/enigma2-plugin-picons-utf8snp-full.220x132-190x102.dark.on.transparent_2025-11-29--16-19-32_all.ipk",
         "preview": "file:///usr/lib/enigma2/python/Plugins/Extensions/PiconUpdater/previews/Discovery.png",
         "satellites": ["13.0E Hot Bird", "19.2E Astra"],
         "category": "Satelita"
     },
     {
         "name": "Pełne 220x132 dark reflection V1",
-        "url": "https://github.com/OliOli2013/PiconUpdater/releases/download/v1.0-iptv/sat_dark_reflection.ipk",
+        "url": "https://github.com/picons/picons/releases/download/2025-11-29--16-19-32/enigma2-plugin-picons-srp-full.220x132-190x102.dark.on.reflection_2025-11-29--16-19-32_all.ipk",
         "preview": "file:///usr/lib/enigma2/python/Plugins/Extensions/PiconUpdater/previews/Filmbox.png",
         "satellites": ["13.0E Hot Bird", "19.2E Astra"],
         "category": "Satelita"
     },
     {
         "name": "Pełne 220x132 light transparent V1",
-        "url": "https://github.com/OliOli2013/PiconUpdater/releases/download/v1.0-iptv/sat_light_transparent.ipk",
+        "url": "https://github.com/picons/picons/releases/download/2025-11-29--16-19-32/enigma2-plugin-picons-srp-13e.19e.23e.28e.220x132-190x102.light.on.transparent_2025-11-29--16-19-32_all.ipk",
         "preview": "file:///usr/lib/enigma2/python/Plugins/Extensions/PiconUpdater/previews/TVP1.png",
         "satellites": ["13.0E Hot Bird", "19.2E Astra"],
         "category": "Satelita"
