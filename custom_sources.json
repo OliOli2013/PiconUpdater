@@ -1,0 +1,17 @@
+[
+  {
+    "name": "Picony IPTV Polska – AIO custom",
+    "download_url": "https://github.com/OliOli2013/PiconUpdater/releases/download/v1.0-iptv/picony_iptv.tar.xz",
+    "source": "OliOli2013/PiconUpdater",
+    "format": "tar.xz",
+    "release_tag": "v1.0-iptv",
+    "published_at": "2025-11-13T00:00:00Z",
+    "size": 0,
+    "type": "aioiptv",
+    "scope": "iptv-pl",
+    "canvas": "custom",
+    "padded": "custom",
+    "logotype": "custom",
+    "background": "custom"
+  }
+]

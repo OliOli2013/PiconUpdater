@@ -1,17 +1,28 @@
-Wersja 1.2.0 (2025-12-03):
-- Dodano mechanizm automatycznej aktualizacji wtyczki z GitHub (sprawdzanie wersji przy starcie).
-- Zmiana funkcji przycisków: Zielony służy do aktualizacji wtyczki, OK do pobierania picon.
-- Poprawiono proces instalacji: picony są teraz dodawane (merge), instalacja IPTV nie kasuje już picon satelitarnych.
-- Naprawiono błąd czarnego ekranu podglądu przy uruchamianiu wtyczki.
-- Usprawniono działanie niebieskiego przycisku (poprawne wyświetlanie nazwy następnej kategorii SAT/IPTV).
-- Odświeżono wygląd stopki (dodano ikony graficzne, usunięto odnośnik do Facebooka).
+PiconUpdater 2.0.1 — 2026-08-21
 
-Wersja 1.1.0 (2025-11-13):
-- Dodano wybór lokalizacji instalacji (Flash / HDD / USB / SD) pod żółtym przyciskiem.
-- Mechanizm tworzenia symlinków dla zewnętrznych nośników.
-- Poprawa nazwy autora.
+- Naprawiono brak opisów na kolorowych przyciskach: wymuszone zPosition i biały tekst nad belkami kolorów.
+- Dodano wybór konkretnego satelity w filtrach (m.in. 13.0E, 19.2E, 23.5E, 28.2E z aktualnych paczek upstream).
+- Dla SRP instalator filtruje picony po namespace Enigma2 i instaluje wyłącznie wybraną pozycję orbitalną.
+- Przy instalacji konkretnego satelity nie jest kopiowany cały wspólny katalog logos/, dzięki czemu liczba plików i zużycie flash są znacznie mniejsze.
+- Przed podmianą piconów paczka jest najpierw pobierana i weryfikowana; dopiero potem stare picony w lokalizacji są usuwane, aby zwolnić miejsce na aktualizację.
+- Dodano rzeczywisty podgląd przykładowego piconu dla transparent/reflection/blue/black/white/grey/custom zamiast samego pustego tła.
+- Komunikat instalacyjny wyraźnie informuje o usunięciu poprzednich piconów.
+- Rozszerzono testy o filtrowanie satelity SRP i dekodowanie namespace.
 
-Wersja 1.0.0 (2025-11-13):
-- Pierwsze wydanie wtyczki.
-- Obsługa pobierania picon IPK i TAR.XZ.
-- Podgląd picon.
+PiconUpdater 2.0.0 — 2026-08-21
+
+- Kompletnie przebudowany interfejs w stylu AIO Panel / IPTV Dream.
+- Dynamiczny katalog GitHub Releases z projektu picons/picons zamiast statycznej listy URL.
+- Automatyczne wykrywanie nowych wydań piconów i aktualizacji wcześniej instalowanych wariantów.
+- Filtry: SRP / UTF8 SNP / SNP legacy / AIO IPTV, satelita/zakres, rozdzielczość, pole logo, styl logo i tło.
+- Obsługa zestawów FULL i list satelitarnych publikowanych przez picons/picons.
+- Wybór instalacji Flash / USB / HDD / innych nośników /media.
+- Zachowanie struktury logos + symlink/hardlink z oficjalnych paczek picons; fallback do kopiowania na nośnikach bez linków.
+- Wbudowany cache katalogu i manifest awaryjny przy braku GitHub API.
+- Weryfikacja SHA256, gdy GitHub udostępnia digest zasobu.
+- Instalacja IPK bez zależności od binarnego programu ar.
+- Bezpieczniejszy instalator GitHub ze stagingiem, walidacją składni i rollbackiem.
+- Zachowano nazwę pakietu, katalog PiconUpdater i dotychczasową publiczną komendę instalacyjną.
+- Kod QR i link do strony projektu.
+- Stopka: by Paweł Pawełek.
+- Usunięto zależność python3-requests — komunikacja sieciowa używa biblioteki standardowej.

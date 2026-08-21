@@ -1,24 +1,40 @@
-# Picon Updater
-Wtyczka (plugin) dla tunerów Enigma2 (Python 3) służąca do łatwego pobierania i instalowania zestawów picon (ikon kanałów).
+# PiconUpdater 2.0.1 for Enigma2
 
-Autor: **Paweł Pawełek** | msisystem@t.pl | Facebook: Enigma 2, Oprogramowanie i dodatki
+**PiconUpdater** is a rebuilt Enigma2 picon browser, updater and installer by **Paweł Pawełek**. Version 2.0.1 continues the rebuilt architecture introduced in 2.0.0 and replaces the old static package list with a dynamic catalog built from current releases of `picons/picons` and keeps the custom AIO IPTV source.
 
-![Zrzut ekranu wtyczki Picon Updater](./screenshot.png)
-## 🚀 Główne Funkcje
+## Main functions
 
-* **Prosta instalacja:** Pobieranie i instalacja picon dla satelitów (np. Hotbird 13°E, Astra 19.2°E) oraz IPTV.
-* **Wybór lokalizacji:** Możliwość instalacji picon w pamięci wewnętrznej (Flash) lub na nośniku zewnętrznym (USB/HDD).
-* **Automatyczne symlinki:** Wtyczka sama tworzy i zarządza linkami symbolicznymi (symlink), gdy picony instalowane są na USB/HDD.
-* **Automatyczne aktualizacje:** Wtyczka sama sprawdza dostępność nowej wersji przy starcie i proponuje aktualizację.
-* **Podgląd (Preview):** Możliwość podejrzenia wybranego zestawu picon przed instalacją.
-* **Inteligentne czyszczenie:** Wtyczka automatycznie usuwa stare picony przed wgraniem nowego zestawu, aby uniknąć bałaganu.
-* **Wsparcie formatów:** Obsługa instalacji picon zarówno z pakietów `.ipk`, jak i archiwów `.tar.xz`.
+- dynamic detection of current `picons/picons` releases;
+- labels for **NEW**, **UPDATE**, **INSTALLED** and **LATEST** packages;
+- filters for picon naming type (**SRP**, **UTF8 SNP**, legacy **SNP**, AIO IPTV), **concrete satellite**, package/scope, canvas size, logo area, dark/light logo and background;
+- deterministic per-satellite SRP installation (for example 13.0E, 19.2E, 23.5E or 28.2E) by filtering Enigma2 service-reference namespaces inside the upstream package;
+- currently published FULL packages and dedicated channel-list releases such as 13E/19E/23E/28E when available upstream;
+- Flash / USB / HDD / other `/media` targets;
+- update-safe installation: the new package is downloaded and validated first, then old picons in the selected location are removed before writing the replacement set;
+- for a concrete SRP satellite, only matching service-reference picons are dereferenced and installed — the huge shared `logos/` tree and unrelated satellites are skipped;
+- support for official picons `logos/` + symlink/hardlink structure when installing a whole package;
+- `.ipk` and `.tar.xz` sources;
+- GitHub catalog cache and offline fallback metadata;
+- SHA256 verification when a GitHub release asset exposes a digest;
+- project QR code and AIO-style footer/UI.
 
-## 🛠️ Instalacja
+## Installation — command remains unchanged
 
-Wtyczka przeznaczona jest dla obrazów Enigma2 opartych na **Python 3** (np. OpenATV 7.x, OpenPLi 9.x i nowsze).
+```sh
+wget -qO - https://raw.githubusercontent.com/OliOli2013/PiconUpdater/main/installer.sh | /bin/sh
+```
 
-Aby zainstalować wtyczkę, połącz się ze swoim tunerem przez terminal (Telnet lub SSH) i wklej poniższą komendę:
+The public command, package name `enigma2-plugin-extensions-piconupdater`, plugin directory `Extensions/PiconUpdater`, and repository path remain compatible with existing installers and other Enigma2 plugins.
 
-```bash
-wget -qO - [https://raw.githubusercontent.com/OliOli2013/PiconUpdater/main/installer.sh](https://raw.githubusercontent.com/OliOli2013/PiconUpdater/main/installer.sh) | /bin/sh
+## Controls
+
+- **OK / Green** — install selected picon set
+- **Yellow** — filters, concrete satellite and install location
+- **Blue** — force refresh of the GitHub catalog
+- **Menu** — tools, plugin update/reinstall, QR, cache and picon cleanup
+- **INFO / 0** — project website QR code
+- **Red / Exit** — close
+
+Project website: https://olioli2013.github.io/aio-iptv-projekt/
+
+Author: **Paweł Pawełek**
