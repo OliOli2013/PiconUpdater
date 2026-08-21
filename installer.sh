@@ -5,8 +5,8 @@
 
 set -e
 
-PLUGIN_PARENT="/usr/lib/enigma2/python/Plugins/Extensions"
-PLUGIN_PATH="$PLUGIN_PARENT/PiconUpdater"
+PLUGIN_PATH="/usr/lib/enigma2/python/Plugins/Extensions/PiconUpdater"
+PLUGIN_PARENT="${PLUGIN_PATH%/PiconUpdater}"
 REPO_URL="https://github.com/OliOli2013/PiconUpdater/archive/refs/heads/main.zip"
 TMP_BASE="/tmp/piconupdater-install-$$"
 TMP_ZIP="$TMP_BASE/main.zip"
@@ -95,7 +95,7 @@ PY
 
 say "Przygotowanie nowej wersji..."
 mkdir -p "$STAGE"
-for name in __init__.py plugin.py ui.py catalog.py storage.py version icon.png catalog_fallback.json custom_sources.json LICENSE changelog README.md THIRD_PARTY.md; do
+for name in __init__.py plugin.py ui.py catalog.py storage.py version icon.png catalog_fallback.json custom_sources.json LICENSE changelog README.md THIRD_PARTY.md installer.sh; do
     if [ -e "$TMP_EXTRACT/$name" ]; then
         cp -a "$TMP_EXTRACT/$name" "$STAGE/"
     fi
